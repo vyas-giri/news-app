@@ -1,27 +1,26 @@
+"use client";
+import React from 'react'
+import { db } from '../firebase/firebaseConfig';
+import { addDoc, collection } from "firebase/firestore";
 
-import React from "react";
-import { db } from "./firebase/firebaseConfig";
-import { doc, setDoc, addDoc, collection } from "firebase/firestore"; 
-import NewsArticles from "./components/newsArticles";
-
-
-
-export default async function Home({}) {
-
-    const apiResponse = await fetch(
-      `https://newsapi.org/v2/top-headlines?country=us&pageSize=100`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_NEWSAPI_KEY}`
+function NewsArticles() {
+    const apiResponse = fetch(
+        `https://newsapi.org/v2/top-headlines?country=us&pageSize=100`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_NEWSAPI_KEY}`
+          },
         },
-      },
-    )
-    const apiJson = await apiResponse.json();
-    const { articles } = apiJson;
-  
+      )
+      const apiJson = apiResponse.json();
+      const { articles } = apiJson;
+
 
   return (
-    <main className="text-gray-400 bg-[#090908] body-font">
+    <div>
+        <button className="">
+      <img width="50" height="50" src="https://img.icons8.com/plasticine/100/grid.png" alt="grid"/>
+      </button>
     <div className="container px-5 py-24 mx-auto">
     <div className="flex flex-wrap -m-4">
       {articles.map((article, index) => {
@@ -29,7 +28,21 @@ export default async function Home({}) {
           return (
             <div className="p-4 md:w-1/3" key={index}>
         <div className="h-full border-2 border-gray-800 rounded-lg overflow-hidden">
-          <button className="absolute rounded-full border-2 hover:bg-red-500">
+          <button className="absolute rounded-full border-2 hover:bg-red-500" onClick={
+            async (author, title, description, url,urlToImage) => {
+              try{
+                const docRef = await addDoc(collection(db, "newsArticles"), {
+                  author: article.author,
+                  title: article.title,
+                  description: article.description,
+                  url: article.url,
+                  urlToImage: article.urlToImage
+                })
+              } catch (error) {
+
+              }
+            }
+          }>
           <img width="40" height="40" src="https://img.icons8.com/cotton/64/like--v1.png" alt="like--v1"/>
           </button>
           <img className="lg:h-48 md:h-36 w-full object-cover object-center" src={article.urlToImage} alt="image" width={720} height={400} />
@@ -55,7 +68,9 @@ export default async function Home({}) {
       })
       }
     </div>
+  </div>
     </div>
-    </main>
   )
 }
+
+export default NewsArticles
